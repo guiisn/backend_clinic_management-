@@ -6,6 +6,7 @@ import jwt from 'jsonwebtoken';
 import { ClinicAdministrator } from '../../entities/ClinicAdministrator';
 import { Coordinator } from '../../entities/Coordinator';
 import { AdministrativeSecretary } from '../../entities/AdministrativeSecretary';
+import { Therapists } from '../../entities/TherapistEntitie';
 
 interface AuthRequest {
   email: string;
@@ -21,6 +22,7 @@ export class AuthenticateService {
     const clinicAdmRepo = getRepository(ClinicAdministrator);
     const coordinatorRepo = getRepository(Coordinator);
     const admSecretaryRepo = getRepository(AdministrativeSecretary)
+    const therapistRepo = getRepository(Therapists)
 
     try {
       let user = {} as Superadmin | ClinicAdministrator | any;
@@ -29,6 +31,7 @@ export class AuthenticateService {
       const isClinicAdm = await clinicAdmRepo.findOne({ where: { email } });
       const isCoordinator = await coordinatorRepo.findOne({ where: { email } });
       const isAdmSecretary = await admSecretaryRepo.findOne({where: {email}})
+      const isTherapist = await therapistRepo.findOne({where: {email}})
 
       if (isSuperadmin) {
         user = isSuperadmin;
@@ -38,6 +41,8 @@ export class AuthenticateService {
         user = isCoordinator;
       } else if (isAdmSecretary) {
         user = isAdmSecretary
+      } else if (isTherapist) {
+        user = isTherapist
       }
 
       const isValidPassword = await bcrypt.compare(password, user.password);
